@@ -1,33 +1,14 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useStoreIp } from "../store.js";
 import useQueryIp from "../hooks/useQueryIp";
-import { Delete, Search, Check, Refresh, Close } from "@element-plus/icons-vue";
+import { Delete, Search } from "@element-plus/icons-vue";
+
+import StatusIcon from "../components/StatusIcon.vue";
 
 const storeIp = useStoreIp();
 const selectedRows = ref([]);
 const queryArrIp = useQueryIp();
-
-const items = computed(() => {
-  return storeIp.data.items
-    .filter((item) => {
-      return Object.values(item).some((value) => {
-        console.log(value);
-        return value
-          .toString()
-          .toLowerCase()
-          .includes(storeIp.data.filter.toLowerCase());
-      });
-    })
-    .sort((a, b) => {
-      if (storeIp.data.sort.dir === "asc") {
-        return a.country.localeCompare(b);
-      }
-      if (storeIp.data.sort.dir === "desc") {
-        return b.country.localeCompare(a);
-      }
-    });
-});
 
 onMounted(() => {
   storeIp.setItems(queryArrIp);
@@ -51,21 +32,17 @@ const handleDeleteItem = (id) => {
 </script>
 
 <template>
-  <el-alert
-    v-if="storeIp.data.error"
-    title="Ошибка загрузки данных"
-    type="error"
-  />
+  <el-alert v-if="storeIp.error" title="Ошибка загрузки данных" type="error" />
 
   <el-input
-    v-model="storeIp.data.filter"
+    v-model="storeIp.filter"
     style="width: 460px"
     placeholder="Фильтровать"
     :prefix-icon="Search"
   />
 
   <el-table
-    :data="items"
+    :data="storeIp.filterSortItems"
     style="width: 100%"
     @selection-change="handleSelectionChange"
     height="500"
@@ -73,7 +50,9 @@ const handleDeleteItem = (id) => {
     <template #empty>
       <div class="custom-empty-text">Нет данных для отображения</div>
     </template>
-    <el-table-column type="selection" width="55" />
+
+    <el-table-column type="selection" width="50" />
+
     <el-table-column prop="ip" label="IP">
       <template #header>
         IP
@@ -85,6 +64,7 @@ const handleDeleteItem = (id) => {
           >Удалить выбранные</el-button
         >
       </template>
+
       <template #default="scope">
         {{ scope.row.ip }}
 
@@ -97,11 +77,12 @@ const handleDeleteItem = (id) => {
         />
       </template>
     </el-table-column>
+
     <el-table-column prop="country">
       <template #header>
         Country
         <el-select
-          v-model="storeIp.data.sort.dir"
+          v-model="storeIp.sort.dir"
           placeholder="Select"
           size="small"
           style="width: 240px"
@@ -111,20 +92,12 @@ const handleDeleteItem = (id) => {
         </el-select>
       </template>
     </el-table-column>
+
     <el-table-column prop="city" label="City/Town" />
+
     <el-table-column prop="status" label="Status" align="right">
       <template #default="scope">
-        <el-tooltip :content="scope.row.status" placement="top">
-          <el-icon v-if="scope.row.status === 'loading'" color="orange"
-            ><Refresh
-          /></el-icon>
-          <el-icon v-if="scope.row.status === 'success'" color="green"
-            ><Check
-          /></el-icon>
-          <el-icon v-if="scope.row.status === 'fail'" color="red"
-            ><Close
-          /></el-icon>
-        </el-tooltip>
+        <StatusIcon :status="scope.row.status" />
       </template>
     </el-table-column>
   </el-table>

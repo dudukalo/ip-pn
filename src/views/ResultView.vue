@@ -1,9 +1,9 @@
 <script setup>
-import ResultTable from "../components/ResultTable.vue";
+import TableIp from "../components/TableIp.vue";
 </script>
 
 <template>
-  <ResultTable />
+  <TableIp />
 </template>
 
 <style scoped></style>

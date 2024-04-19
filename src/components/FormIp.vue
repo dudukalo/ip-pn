@@ -5,7 +5,14 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const sampleArrIps = String(
-  ["31.41.0.1", "31.41.0.2", "313.41.0.1"].join(",\n")
+  [
+    "31.41.0.1",
+    "31.41.0.2",
+    "313.41.0.1",
+    "14.21.4.1",
+    "31.41.5.1",
+    "31.41.1.1",
+  ].join(",\n")
 );
 const listIpText = ref(sampleArrIps);
 

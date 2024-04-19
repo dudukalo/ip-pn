@@ -1,23 +1,21 @@
 import { defineStore } from "pinia";
-import { reactive, ref } from "vue";
+import { computed, ref, reactive } from "vue";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
 const apiURL = "http://ip-api.com/json";
 
 export const useStoreIp = defineStore("storeIp", () => {
-  const data = reactive({
-    error: false,
-    items: [],
-    filter: "",
-    sort: {
-      column: "country",
-      dir: "asc",
-    },
+  const items = ref([]);
+  const filter = ref("");
+  const error = ref(false);
+  const sort = reactive({
+    column: "country",
+    dir: "asc",
   });
 
   const addItem = async (ip) => {
-    data.items.push({
+    items.value.push({
       id: uuidv4(),
       ip: ip,
       country: "",
@@ -25,37 +23,66 @@ export const useStoreIp = defineStore("storeIp", () => {
       status: "loading",
     });
 
-    const item = data.items.at(-1);
-    axios
-      .get(`${apiURL}/${ip}`)
-      .then((response) => {
-        const { country, city, status } = response.data;
+    const item = items.value.at(-1);
 
-        item.city = city || "";
-        item.country = country || "";
+    axios
+      .get(`${apiURL}/${ip}?fields=status,country,city`)
+      .then((response) => {
+        const { status, country, city } = response.data;
+
         item.status = status;
+        if (status === "success") {
+          item.city = city;
+          item.country = country;
+        }
       })
       .catch((error) => {
-        console.log(error);
-        data.error = true;
+        error.value = true;
       });
   };
 
+  const filterSortItems = computed(() => {
+    return items.value
+      .filter((item) => {
+        return Object.values(item).some((value) => {
+          return value
+            .toString()
+            .toLowerCase()
+            .includes(filter.value.toLowerCase());
+        });
+      })
+      .sort((a, b) => {
+        if (sort.dir === "asc") {
+          return a[sort.column].localeCompare(b[sort.column]);
+        }
+        if (sort.dir === "desc") {
+          return b[sort.column].localeCompare(a[sort.column]);
+        }
+      });
+  });
+
   const setItems = (arr) => {
-    data.items.length = 0;
+    items.value = [];
     arr.forEach((ip) => addItem(ip));
   };
 
   const deleteItem = (id) => {
-    const index = data.items.findIndex((item) => item.id === id);
-    if (index !== -1) {
-      data.items.splice(index, 1);
-    }
+    items.value = items.value.filter((item) => item.id !== id);
   };
 
   const deleteItems = (ids) => {
-    data.items = ref(data.items.filter((item) => !ids.includes(item.id)));
+    items.value = items.value.filter((item) => !ids.includes(item.id));
   };
 
-  return { data, addItem, setItems, deleteItem, deleteItems };
+  return {
+    items,
+    error,
+    sort,
+    filter,
+    filterSortItems,
+    addItem,
+    setItems,
+    deleteItem,
+    deleteItems,
+  };
 });

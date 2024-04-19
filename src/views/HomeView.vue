@@ -1,9 +1,8 @@
 <script setup>
-import IpForm from "../components/IpForm.vue";
+import FormIp from "../components/FormIp.vue";
 </script>
 
 <template>
-  <IpForm />
+  <FormIp />
 </template>
-
 <style scoped></style>
