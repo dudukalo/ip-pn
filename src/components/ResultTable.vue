@@ -12,6 +12,7 @@ const items = computed(() => {
   return storeIp.data.items
     .filter((item) => {
       return Object.values(item).some((value) => {
+        console.log(value);
         return value
           .toString()
           .toLowerCase()
@@ -57,7 +58,7 @@ const handleDeleteItem = (id) => {
   />
 
   <el-input
-    v-model="storeIp.filter"
+    v-model="storeIp.data.filter"
     style="width: 460px"
     placeholder="Фильтровать"
     :prefix-icon="Search"
