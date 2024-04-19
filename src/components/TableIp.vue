@@ -32,8 +32,6 @@ const handleDeleteItem = (id) => {
 </script>
 
 <template>
-  <el-alert v-if="storeIp.error" title="Ошибка загрузки данных" type="error" />
-
   <el-input
     v-model="storeIp.filter"
     style="width: 460px"

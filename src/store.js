@@ -26,7 +26,7 @@ export const useStoreIp = defineStore("storeIp", () => {
     const item = items.value.at(-1);
 
     axios
-      .get(`${apiURL}/${ip}?fields=status,country,city`)
+      .get(`${apiURL}ddd/${ip}?fields=status,country,city`)
       .then((response) => {
         const { status, country, city } = response.data;
 
@@ -36,7 +36,7 @@ export const useStoreIp = defineStore("storeIp", () => {
           item.country = country;
         }
       })
-      .catch((error) => {
+      .catch(() => {
         error.value = true;
       });
   };
