@@ -2,9 +2,9 @@
 
 <template>
   <nav class="nav">
-    <a href="#">Documentation</a>
-    <a href="#">Contacts</a>
-    <a href="#">Log in</a>
+    <el-link>Documentation</el-link>
+    <el-link>Contacts</el-link>
+    <el-link>Log in</el-link>
   </nav>
 </template>
 

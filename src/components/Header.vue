@@ -16,7 +16,7 @@ import Nav from "./Nav.vue";
 
 <style scoped>
 .header {
-  background-color: #f2f0f0;
+  background-color: #f0f2f5;
   margin-bottom: 40px;
 }
 

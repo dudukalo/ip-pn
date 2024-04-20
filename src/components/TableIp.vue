@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import { useStoreIp } from "../store.js";
 import useQueryIp from "../hooks/useQueryIp";
-import { Delete, Search } from "@element-plus/icons-vue";
+import { Delete, Search, CopyDocument } from "@element-plus/icons-vue";
 
 import StatusIcon from "../components/StatusIcon.vue";
 
@@ -26,17 +26,21 @@ const handleDeleteSelectedItems = () => {
   storeIp.deleteItems(selectedRows.value.map((item) => item.id));
 };
 
-const handleDeleteItem = (id) => {
-  storeIp.deleteItem(id);
+const handleCopyIp = async (ip) => {
+  try {
+    await navigator.clipboard.writeText(ip);
+  } catch (err) {
+    console.error("Ошибка копирования", err);
+  }
 };
 </script>
 
 <template>
   <el-input
     v-model="storeIp.filter"
-    style="width: 460px"
-    placeholder="Фильтровать"
+    placeholder="Фильтровать по всем полям"
     :prefix-icon="Search"
+    style="width: 300px; margin-bottom: 20px"
   />
 
   <el-table
@@ -44,6 +48,7 @@ const handleDeleteItem = (id) => {
     style="width: 100%"
     @selection-change="handleSelectionChange"
     height="500"
+    row-key="id"
   >
     <template #empty>
       <div class="custom-empty-text">Нет данных для отображения</div>
@@ -51,43 +56,77 @@ const handleDeleteItem = (id) => {
 
     <el-table-column type="selection" width="50" />
 
-    <el-table-column prop="ip" label="IP">
+    <el-table-column prop="ip" label="IP" class-name="cell-id">
       <template #header>
-        IP
-        <el-button
-          v-if="selectedRows.length > 1"
-          type="danger"
-          plain
-          @click="handleDeleteSelectedItems"
-          >Удалить выбранные</el-button
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
         >
+          IP
+          <el-button
+            v-if="selectedRows.length > 1"
+            type="danger"
+            plain
+            size="small"
+            style="float: right"
+            @click="handleDeleteSelectedItems"
+            >Удалить выбранные</el-button
+          >
+        </div>
       </template>
 
       <template #default="scope">
-        {{ scope.row.ip }}
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          {{ scope.row.ip }}
 
-        <el-button
-          v-if="isSelected(scope.row) && selectedRows.length === 1"
-          type="danger"
-          :icon="Delete"
-          circle
-          @click="handleDeleteItem(scope.row.id)"
-        />
+          <el-button
+            v-if="isSelected(scope.row) && selectedRows.length === 1"
+            type="danger"
+            :icon="Delete"
+            size="small"
+            circle
+            @click="handleDeleteSelectedItems"
+            style="margin-left: auto"
+          />
+          <el-button
+            :icon="CopyDocument"
+            circle
+            size="small"
+            @click="handleCopyIp(scope.row.ip)"
+          />
+        </div>
       </template>
     </el-table-column>
 
     <el-table-column prop="country">
       <template #header>
-        Country
-        <el-select
-          v-model="storeIp.sort.dir"
-          placeholder="Select"
-          size="small"
-          style="width: 240px"
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
         >
-          <el-option label="A-Z" value="asc" />
-          <el-option label="Z-A" value="desc" />
-        </el-select>
+          Country
+          <el-select
+            v-model="storeIp.sort.dir"
+            placeholder="Select"
+            size="small"
+            style="width: 100px"
+          >
+            <el-option label="A-Z" value="asc" />
+            <el-option label="Z-A" value="desc" />
+          </el-select>
+        </div>
       </template>
     </el-table-column>
 
@@ -101,4 +140,8 @@ const handleDeleteItem = (id) => {
   </el-table>
 </template>
 
-<style scoped></style>
+<style scoped>
+.id-cell {
+  background-color: red;
+}
+</style>

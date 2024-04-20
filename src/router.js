@@ -3,6 +3,7 @@ import { createWebHistory, createRouter } from "vue-router";
 import HomeView from "./views/HomeView.vue";
 import ResultView from "./views/ResultView.vue";
 
+// Страницу для просмотра ip не успел сделать
 const routes = [
   {
     path: "/",

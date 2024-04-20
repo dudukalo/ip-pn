@@ -41,6 +41,7 @@ export const useStoreIp = defineStore("storeIp", () => {
       });
   };
 
+  // Фильтрация по всем полям + сортировка
   const filterSortItems = computed(() => {
     return items.value
       .filter((item) => {
@@ -66,10 +67,6 @@ export const useStoreIp = defineStore("storeIp", () => {
     arr.forEach((ip) => addItem(ip));
   };
 
-  const deleteItem = (id) => {
-    items.value = items.value.filter((item) => item.id !== id);
-  };
-
   const deleteItems = (ids) => {
     items.value = items.value.filter((item) => !ids.includes(item.id));
   };
@@ -82,7 +79,6 @@ export const useStoreIp = defineStore("storeIp", () => {
     filterSortItems,
     addItem,
     setItems,
-    deleteItem,
     deleteItems,
   };
 });
