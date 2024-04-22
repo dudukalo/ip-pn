@@ -3,10 +3,12 @@ import { ref, onMounted } from "vue";
 import { useStoreIp } from "../store.js";
 import useQueryIp from "../hooks/useQueryIp";
 import { Delete, Search, CopyDocument } from "@element-plus/icons-vue";
+import { debounce } from "lodash";
 
 import StatusIcon from "../components/StatusIcon.vue";
 
 const storeIp = useStoreIp();
+const filterQuery = ref("");
 const selectedRows = ref([]);
 const queryArrIp = useQueryIp();
 
@@ -14,19 +16,24 @@ onMounted(() => {
   storeIp.setItems(queryArrIp);
 });
 
+const handleFilterInput = debounce(function () {
+  storeIp.filter = filterQuery.value;
+  console.log(storeIp.filter);
+}, 500);
+
+const handleDeleteItemsClick = () => {
+  storeIp.deleteItems(selectedRows.value.map((item) => item.id));
+};
+
 const isSelected = (row) => {
   return selectedRows.value.some((selected) => selected.id === row.id);
 };
 
-const handleSelectionChange = (val) => {
+const setSelectedRows = (val) => {
   selectedRows.value = val;
 };
 
-const handleDeleteSelectedItems = () => {
-  storeIp.deleteItems(selectedRows.value.map((item) => item.id));
-};
-
-const handleCopyIp = async (ip) => {
+const copyIp = async (ip) => {
   try {
     await navigator.clipboard.writeText(ip);
   } catch (err) {
@@ -37,7 +44,8 @@ const handleCopyIp = async (ip) => {
 
 <template>
   <el-input
-    v-model="storeIp.filter"
+    v-model="filterQuery"
+    @input="handleFilterInput"
     placeholder="Фильтровать по всем полям"
     :prefix-icon="Search"
     style="width: 300px; margin-bottom: 20px"
@@ -46,7 +54,7 @@ const handleCopyIp = async (ip) => {
   <el-table
     :data="storeIp.filterSortItems"
     style="width: 100%"
-    @selection-change="handleSelectionChange"
+    @selection-change="setSelectedRows"
     height="500"
     row-key="id"
   >
@@ -72,7 +80,7 @@ const handleCopyIp = async (ip) => {
             plain
             size="small"
             style="float: right"
-            @click="handleDeleteSelectedItems"
+            @click="handleDeleteItemsClick"
             >Удалить выбранные</el-button
           >
         </div>
@@ -101,7 +109,7 @@ const handleCopyIp = async (ip) => {
             :icon="CopyDocument"
             circle
             size="small"
-            @click="handleCopyIp(scope.row.ip)"
+            @click="copyIp(scope.row.ip)"
           />
         </div>
       </template>
